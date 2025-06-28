@@ -1,15 +1,20 @@
+/* === ESTILOS BASE (ESCRITORIO Y GRANDES PANTALLAS) === */
 body {
   margin: 0;
   overflow: hidden;
-  background-color: black;
+  background: #000;
 }
 
 .nave {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 100px;
-  height: 150px;
+  width: 8vw;
+  height: 10vw;
+  min-width: 80px;
+  min-height: 120px;
+  max-width: 180px;
+  max-height: 270px;
   transform: translate(-50%, -50%);
   z-index: 10;
   pointer-events: none;
@@ -17,102 +22,334 @@ body {
 
 .asteroide {
   position: absolute;
-  width: 60px;
-  height: 60px;
+  width: 10vw;
+  height: 10vw;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 100px;
+  max-height: 100px;
   z-index: 9;
 }
 
+.enemigo {
+  position: absolute;
+  width: 8vw;
+  height: 8vw;
+  min-width: 70px;
+  min-height: 70px;
+  max-width: 160px;
+  max-height: 160px;
+  z-index: 10;
+}
+
 .proyectil {
-  position: fixed
-  width: 40px;
-  height: 60px;
+  position: absolute;
+  width: 30vw;
+  height: 30vw;
+  min-width: 20px;
+  min-height: 12px;
+  max-width: 40px;
+  max-height: 30px;
   z-index: 15;
   pointer-events: none;
 }
-
 
 .explosion {
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 100px;
-  height: 100px;
+  width: 50vw;
+  height: 50vw;
+  min-width: 60px;
+  min-height: 60px;
+  max-width: 120px;
+  max-height: 120px;
   transform: translate(-50%, -50%);
   z-index: 20;
   pointer-events: none;
 }
 
-#universo {
-  background-size: cover;
-}
+#universo { background-size: cover; }
 
 #reiniciar {
-  margin-top: 20px;
-  padding: 10px 20px;
-  font-size: 18px;
+  margin-top: 2rem;
+  padding: 0.7rem 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
   border: none;
-  border-radius: 8px;
-  background-color: #ffffff;
-  color: #000000;
-  transition: background-color 0.3s;
+  border-radius: 0.5rem;
+  background: #fff;
+  color: #000;
+  transition: background 0.3s;
 }
 
-#reiniciar:hover {
-  background-color: #ddd;
-}
-
+#reiniciar:hover { background: #ddd; }
 
 #hud {
   position: fixed;
-  top: 10px;
-  left: 10px;
-  color: white;
-  font-size: 20px;
+  top: 1.2rem;
+  left: 1.2rem;
+  color: #fff;
+  font-size: 1.3rem;
   z-index: 10000;
   display: flex;
   align-items: center;
-  gap: 20px;
-  
+  gap: 2rem;
 }
 
 #contador img {
-  width: 30px;
+  width: 4rem;
+  min-width: 48px;
+  max-width: 80px;
   vertical-align: middle;
 }
 
-#btnPausa {
-  padding: 5px 10px;
-  font-size: 16px;
+#btnPausa, #btnSonido {
+  padding: 0.4rem 1rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  background: #fff;
-  border: none;
-  border-radius: 5px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #0f0;
+  border-radius: 0.5rem;
 }
 
 #vidas {
   background: #222;
-  padding: 5px 10px;
-  border-radius: 5px;
+  padding: 0.3rem 1rem;
+  border-radius: 0.5rem;
 }
 
 #barraVidas {
-  width: 120px;
-  height: 20px;
+  width: 7rem;
+  height: 1.2rem;
   background: #444;
   border: 2px solid #fff;
-  border-radius: 5px;
+  border-radius: 0.5rem;
   overflow: hidden;
 }
 
 #barraRelleno {
   height: 100%;
   width: 100%;
-  background-color: green;
-  transition: width 0.3s, background-color 0.3s;
+  background: green;
+  transition: width 0.3s, background 0.3s;
 }
 
-.enemigo {
-  position: absolute;
-  z-index: 9;
+/* Tamaños de asteroides */
+.asteroide-pequeno {
+  width: 6vw;
+  height: 6vw;
+  min-width: 32px;
+  min-height: 32px;
+  max-width: 60px;
+  max-height: 60px;
+}
+.asteroide-mediano {
+  width: 10vw;
+  height: 10vw;
+  min-width: 48px;
+  min-height: 48px;
+  max-width: 100px;
+  max-height: 100px;
+}
+.asteroide-grande {
+  width: 14vw;
+  height: 14vw;
+  min-width: 80px;
+  min-height: 80px;
+  max-width: 160px;
+  max-height: 160px;
+}
+
+/* Tamaños de enemigos */
+.enemigo-pequeno {
+  width: 7vw;
+  height: 7vw;
+  min-width: 40px;
+  min-height: 40px;
+  max-width: 80px;
+  max-height: 80px;
+}
+.enemigo-mediano {
+  width: 10vw;
+  height: 10vw;
+  min-width: 70px;
+  min-height: 70px;
+  max-width: 120px;
+  max-height: 120px;
+}
+.enemigo-grande {
+  width: 14vw;
+  height: 14vw;
+  min-width: 110px;
+  min-height: 110px;
+  max-width: 180px;
+  max-height: 180px;
+}
+
+/* === MEDIA QUERIES: MOVIL Y TABLET === */
+@media (max-width: 900px), (pointer: coarse) {
+  .nave {
+    width: 22vw;
+    height: 28vw;
+    min-width: 80px;
+    min-height: 100px;
+    max-width: 120px;
+    max-height: 160px;
+  }
+  .asteroide {
+    width: 10vw;
+    height: 10vw;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 70px;
+    max-height: 70px;
+  }
+  .enemigo {
+    width: 15vw;
+    height: 15vw;
+    min-width: 60px;
+    min-height: 60px;
+    max-width: 120px;
+    max-height: 120px;
+  }
+  .proyectil {
+    width: 5vw;
+    height: 3vw;
+    min-width: 18px;
+    min-height: 12px;
+    max-width: 32px;
+    max-height: 24px;
+  }
+  #hud {
+    font-size: 1.1rem;
+    gap: 1rem;
+    top: 0.7rem;
+    left: 0.7rem;
+  }
+  #btnPausa, #btnSonido {
+    font-size: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 0.7rem;
+    top: 0.7rem;
+    right: 0.7rem;
+  }
+  #contador img {
+    width: 2.5rem;
+    min-width: 28px;
+    max-width: 44px;
+  }
+}
+@media (orientation: landscape) and (max-width: 900px), (orientation: landscape) and (pointer: coarse) {
+  .nave {
+    width: 15vw;
+    height: 18vw;
+    min-width: 60px;
+    min-height: 80px;
+    max-width: 90px;
+    max-height: 120px;
+  }
+  .asteroide {
+    width: 7vw;
+    height: 7vw;
+    min-width: 28px;
+    min-height: 28px;
+    max-width: 50px;
+    max-height: 50px;
+  }
+  .enemigo {
+    width: 10vw;
+    height: 10vw;
+    min-width: 40px;
+    min-height: 40px;
+    max-width: 80px;
+    max-height: 80px;
+  }
+  .proyectil {
+    width: 3vw;
+    height: 2vw;
+    min-width: 12px;
+    min-height: 8px;
+    max-width: 18px;
+    max-height: 14px;
+  }
+  #hud {
+    font-size: 0.9rem;
+    gap: 0.7rem;
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  #btnPausa, #btnSonido {
+    font-size: 0.9rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: 0.5rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  #contador img {
+    width: 1.8rem;
+    min-width: 18px;
+    max-width: 28px;
+  }
+}
+@media (orientation: portrait) and (max-width: 900px), (orientation: portrait) and (pointer: coarse) {
+  .nave {
+    width: 18vw;
+    height: 24vw;
+    min-width: 70px;
+    min-height: 90px;
+    max-width: 100px;
+    max-height: 130px;
+  }
+  .asteroide {
+    width: 8vw;
+    height: 8vw;
+    min-width: 24px;
+    min-height: 24px;
+    max-width: 40px;
+    max-height: 40px;
+  }
+  .enemigo {
+    width: 12vw;
+    height: 12vw;
+    min-width: 48px;
+    min-height: 48px;
+    max-width: 60px;
+    max-height: 60px;
+  }
+  .proyectil {
+    width: 2.5vw;
+    height: 1.7vw;
+    min-width: 8px;
+    min-height: 6px;
+    max-width: 12px;
+    max-height: 10px;
+  }
+  #hud {
+    font-size: 1rem;
+    gap: 0.6rem;
+    top: 0.5rem;
+    left: 0.5rem;
+  }
+  #btnPausa, #btnSonido {
+    font-size: 0.9rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.4rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  #contador img {
+    width: 1.5rem;
+    min-width: 14px;
+    max-width: 22px;
+  }
+}
+
+/* Fondo de ciudad con filtro de profundidad y nitidez */
+.fondo-ciudad {
+  /* El filtro se aplica solo al fondo, no a los elementos del juego */
+  filter: blur(1.5px) brightness(0.85);
+  /* Puedes ajustar los valores según el efecto visual deseado */
+  transition: filter 0.5s;
 }
