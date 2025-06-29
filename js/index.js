@@ -243,7 +243,36 @@ if (esDispositivoTactil()) {
   btnDisparo.addEventListener('touchstart', disparar)
 }
 
-// --- Eventos de mouse (solo escritorio) ---
+function crearParticulas(x, y, color = '#fff', cantidad = 12) {
+  for (let i = 0; i < cantidad; i++) {
+    const p = crear(
+      'div',
+      {},
+      {
+        position: 'absolute',
+        left: `${x}px`,
+        top: `${y}px`,
+        width: '6px',
+        height: '6px',
+        borderRadius: '50%',
+        background: color,
+        opacity: 0.8,
+        zIndex: 9999,
+        pointerEvents: 'none',
+        transition: 'all 0.7s linear',
+      },
+      universo
+    )
+    const ang = Math.random() * 2 * Math.PI
+    const dist = 40 + Math.random() * 30
+    setTimeout(() => {
+      p.style.left = `${x + Math.cos(ang) * dist}px`
+      p.style.top = `${y + Math.sin(ang) * dist}px`
+      p.style.opacity = 0
+    }, 10)
+    setTimeout(() => p.remove(), 700)
+  }
+} // --- Controles de mouse y teclado para escritorio ---
 if (!esDispositivoTactil()) {
   window.addEventListener('mousedown', (e) => {
     if (e.button === 0) disparar()
@@ -260,7 +289,7 @@ if (!esDispositivoTactil()) {
   })
   window.addEventListener('mouseup', (e) => {
     if (e.button === 2) {
-      vel = 8 // velocidad normal restaurada
+      vel = 10 // velocidad normal restaurada
       nave.src = 'img/nave1.png'
       avanzando = false
       delete keysPressed['ArrowUp']
@@ -269,6 +298,18 @@ if (!esDispositivoTactil()) {
   })
   window.addEventListener('contextmenu', (e) => e.preventDefault())
 }
+
+document.addEventListener('keyup', (e) => {
+  delete keysPressed[e.key]
+  if (e.key === 'ArrowUp') {
+    avanzando = false
+    sndMotor.pause()
+  }
+  if (e.key === 'Enter') {
+    vel = 10 // velocidad normal restaurada
+    nave.src = 'img/nave1.png'
+  }
+})
 
 // --- Eventos de teclado ---
 document.addEventListener('keydown', (e) => {
@@ -301,7 +342,7 @@ document.addEventListener('keyup', (e) => {
     sndMotor.pause()
   }
   if (e.key === 'Enter') {
-    vel = 8 // velocidad normal restaurada
+    vel = 10 // velocidad normal restaurada
     nave.src = 'img/nave1.png'
   }
 })
@@ -878,3 +919,133 @@ function reanudarProyectilesEnemigos() {
     }
   }
 }
+
+// --- Registro de usuario al inicio ---
+let nombreUsuario = localStorage.getItem('nombreUsuario') || ''
+
+function mostrarPopupRegistro() {
+  const popup = crear(
+    'div',
+    {},
+    {
+      position: 'fixed',
+      top: '0',
+      left: '0',
+      width: '100vw',
+      height: '100vh',
+      background: 'rgba(0,0,0,0.85)',
+      zIndex: 20000,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }
+  )
+  const caja = crear(
+    'div',
+    {},
+    {
+      background: '#222',
+      padding: '40px 30px',
+      borderRadius: '18px',
+      boxShadow: '0 0 30px #0f0',
+      textAlign: 'center',
+      color: '#fff',
+      minWidth: '320px',
+    },
+    popup
+  )
+  caja.innerHTML = `
+    <h2>¡Bienvenido/a!</h2>
+    <p>Por favor, ingresa tu nombre para comenzar:</p>
+    <input id="inputNombreUsuario" type="text" maxlength="20" style="font-size:1.2em;padding:8px;border-radius:6px;border:1px solid #0f0;width:90%;margin-bottom:18px;" autofocus>
+    <br>
+    <button id="btnRegistroUsuario" style="font-size:1.1em;padding:10px 30px;border-radius:8px;background:#0f0;color:#222;border:none;font-weight:bold;cursor:pointer;">Comenzar</button>
+  `
+  document.body.appendChild(popup)
+  document.getElementById('btnRegistroUsuario').onclick = () => {
+    const nombre = document.getElementById('inputNombreUsuario').value.trim()
+    if (nombre.length < 2) {
+      alert('Por favor, ingresa un nombre válido.')
+      return
+    }
+    nombreUsuario = nombre
+    localStorage.setItem('nombreUsuario', nombreUsuario)
+    popup.remove()
+    mostrarNombreUsuario()
+  }
+  document
+    .getElementById('inputNombreUsuario')
+    .addEventListener('keydown', (e) => {
+      if (e.key === 'Enter')
+        document.getElementById('btnRegistroUsuario').click()
+    })
+}
+
+// Mostrar nombre en la parte superior derecha
+function mostrarNombreUsuario() {
+  let divNombre = document.getElementById('nombreUsuario')
+  if (!divNombre) {
+    divNombre = crear(
+      'div',
+      { id: 'nombreUsuario' },
+      {
+        position: 'fixed',
+        top: '10px',
+        right: '140px',
+        color: '#0f0',
+        fontSize: '20px',
+        zIndex: '10001',
+        fontWeight: 'bold',
+        background: 'rgba(0,0,0,0.7)',
+        padding: '8px 18px',
+        borderRadius: '10px',
+        letterSpacing: '1px',
+        pointerEvents: 'none',
+      }
+    )
+    document.body.appendChild(divNombre)
+  }
+  divNombre.innerText = `👤 ${nombreUsuario}`
+}
+
+// Personaliza los avisos emergentes con el nombre del usuario
+function mensajePersonalizado(texto) {
+  const div = crear(
+    'div',
+    {},
+    {
+      position: 'fixed',
+      top: '30%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontSize: '32px',
+      color: '#00ff99',
+      zIndex: 20001,
+      padding: '30px',
+      borderRadius: '14px',
+      backgroundColor: 'rgba(0,0,0,0.9)',
+      textAlign: 'center',
+      fontWeight: 'bold',
+      boxShadow: '0 0 30px #0f0',
+    }
+  )
+  div.innerHTML = `<span style="font-size:1.2em;">${
+    nombreUsuario ? nombreUsuario + ', ' : ''
+  }${texto}</span>`
+  document.body.appendChild(div)
+  setTimeout(() => div.remove(), 3000)
+}
+
+// Llama a la ventana de registro si no hay nombre guardado
+if (!nombreUsuario) {
+  setTimeout(mostrarPopupRegistro, 300)
+} else {
+  mostrarNombreUsuario()
+}
+
+// Ejemplo de uso en avisos emergentes:
+// mensajePersonalizado('¡Felicidades! Nivel superado 🚀')
+
+// Puedes reemplazar los avisos de nivel y game over así:
+// mensajePersonalizado('¡El juego ha terminado!');
+// mensajePersonalizado('¡Felicidades! Nivel ' + nivel + ' alcanzado 🚀');
