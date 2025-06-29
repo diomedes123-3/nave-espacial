@@ -22,8 +22,8 @@ sndCelebracion.loop = false // Asegura que no se repita
 const sndVida = crear('audio', { src: 'audio/vida.mp3' }) // Sonido para power-up de vida
 
 let ang = 0,
-  vel = 10, // velocidad normal más lenta
-  turbo = 15 // velocidad turbo más lenta
+  vel = 18, // velocidad normal más rápida
+  turbo = 28 // velocidad turbo más rápida
 let ux = -9500,
   uy = -9500
 let avanzando = false,
