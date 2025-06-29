@@ -22,8 +22,8 @@ sndCelebracion.loop = false // Asegura que no se repita
 const sndVida = crear('audio', { src: 'audio/vida.mp3' }) // Sonido para power-up de vida
 
 let ang = 0,
-  vel = 18, // velocidad normal más rápida
-  turbo = 28 // velocidad turbo más rápida
+  vel = 10, // velocidad normal más lenta
+  turbo = 15 // velocidad turbo más lenta
 let ux = -9500,
   uy = -9500
 let avanzando = false,
@@ -33,7 +33,7 @@ let gameOver = false,
 let puntuacion = 0,
   vidas = 10, // ahora 10 vidas
   hitsParaVida = 0,
-  nivel = 1
+  nivel = 1 // SIEMPRE nivel 1
 let cantidadDisparosPorNivel = 1
 let intervaloAst = null
 let intervaloEnem = null
@@ -635,15 +635,15 @@ function iniciarNivel(nivel) {
   universo.style.backgroundPosition = 'left top'
   universo.classList.remove('fondo-ciudad')
   // Ajusta dificultad según nivel
-  let freqAst = 3000
+  let freqAst = 900 // MÁS asteroides: cada 900ms
   let freqEnem = null
   if (nivel >= 2) {
-    freqAst = 2000
-    freqEnem = 4000 // menos enemigos
+    freqAst = 700
+    freqEnem = 4000
   }
   if (nivel >= 5) {
-    freqAst = 1500
-    freqEnem = 3000 // menos enemigos
+    freqAst = 500
+    freqEnem = 3000
   }
   intervaloAst = setInterval(crearAsteroide, freqAst)
   if (nivel >= 2) {
@@ -662,9 +662,9 @@ document.addEventListener('click', (e) => {
     pausado = false
     vidas = 10
     puntuacion = 0
-    nivel = 0
+    nivel = 1 // SIEMPRE nivel 1
     cantidadDisparosPorNivel = 1
-    document.getElementById('nivel').innerText = `Nivel 0`
+    document.getElementById('nivel').innerText = `Nivel 1`
     ux = -9500
     uy = -9500
     ang = 0
@@ -686,7 +686,7 @@ document.addEventListener('click', (e) => {
     if (intervaloAst) clearInterval(intervaloAst)
     if (intervaloEnem) clearInterval(intervaloEnem)
     if (intervaloDisparoEnemigos) clearInterval(intervaloDisparoEnemigos)
-    iniciarNivel(0)
+    iniciarNivel(nivel)
     moverFondo()
     return
   }
@@ -1000,12 +1000,39 @@ function mostrarNombreUsuario() {
         padding: '8px 18px',
         borderRadius: '10px',
         letterSpacing: '1px',
-        pointerEvents: 'none',
+        pointerEvents: 'auto',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
       }
     )
     document.body.appendChild(divNombre)
   }
-  divNombre.innerText = `👤 ${nombreUsuario}`
+  divNombre.innerHTML = `👤 ${nombreUsuario} <button id="btnSalir" style="margin-left:10px;font-size:16px;padding:4px 14px;border-radius:6px;background:#f33;color:#fff;border:none;cursor:pointer;">Salir</button>`
+
+  // Funcionalidad del botón Salir
+  document.getElementById('btnSalir').onclick = () => {
+    // Resetea el estado y muestra mensaje
+    gameOver = true
+    pausado = true
+    nave.style.display = 'none'
+    mensajePersonalizado('Has salido del juego.')
+    divNombre.style.display = 'none'
+    // Opcional: limpiar intervalos y asteroides
+    if (intervaloAst) clearInterval(intervaloAst)
+    if (intervaloEnem) clearInterval(intervaloEnem)
+    if (intervaloDisparoEnemigos) clearInterval(intervaloDisparoEnemigos)
+    for (let a of asteroides) a.remove()
+    asteroides = []
+    for (let obj of proyectilesEnemigos) {
+      if (obj.bala) obj.bala.remove()
+      if (obj.intervalo) clearInterval(obj.intervalo)
+    }
+    proyectilesEnemigos = []
+    // Borra el nombre de usuario y recarga para volver a mostrar el popup
+    localStorage.removeItem('nombreUsuario')
+    setTimeout(() => location.reload(), 1500)
+  }
 }
 
 // Personaliza los avisos emergentes con el nombre del usuario
@@ -1041,6 +1068,8 @@ if (!nombreUsuario) {
   setTimeout(mostrarPopupRegistro, 300)
 } else {
   mostrarNombreUsuario()
+  iniciarNivel(nivel)
+  moverFondo()
 }
 
 // Ejemplo de uso en avisos emergentes:
