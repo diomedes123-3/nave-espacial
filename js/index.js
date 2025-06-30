@@ -1,3 +1,4 @@
+
 // Utilidad para crear elementos
 const crear = (tag, props = {}, styles = {}, padre = document.body) => {
   const el = document.createElement(tag)
@@ -22,8 +23,8 @@ sndCelebracion.loop = false // Asegura que no se repita
 const sndVida = crear('audio', { src: 'audio/vida.mp3' }) // Sonido para power-up de vida
 
 let ang = 0,
-  vel = 10, // velocidad normal más lenta
-  turbo = 15 // velocidad turbo más lenta
+  vel = 8, // velocidad normal más baja
+  turbo = 14 // velocidad turbo más baja
 let ux = -9500,
   uy = -9500
 let avanzando = false,
@@ -45,6 +46,7 @@ let mouseX = innerWidth / 2,
   mouseMoving = false,
   mouseControlActivo = false
 let mouseMoveTimeout
+let juegoIniciado = false
 
 // --- HUD y mensajes ---
 const gameOverDiv = crear(
@@ -275,6 +277,7 @@ function crearParticulas(x, y, color = '#fff', cantidad = 12) {
 } // --- Controles de mouse y teclado para escritorio ---
 if (!esDispositivoTactil()) {
   window.addEventListener('mousedown', (e) => {
+    if (!nombreUsuario) return
     if (e.button === 0) disparar()
     if (e.button === 2) {
       vel = turbo
@@ -288,6 +291,7 @@ if (!esDispositivoTactil()) {
     }
   })
   window.addEventListener('mouseup', (e) => {
+    if (!nombreUsuario) return
     if (e.button === 2) {
       vel = 10 // velocidad normal restaurada
       nave.src = 'img/nave1.png'
@@ -300,6 +304,7 @@ if (!esDispositivoTactil()) {
 }
 
 document.addEventListener('keyup', (e) => {
+  if (!nombreUsuario) return
   delete keysPressed[e.key]
   if (e.key === 'ArrowUp') {
     avanzando = false
@@ -313,6 +318,7 @@ document.addEventListener('keyup', (e) => {
 
 // --- Eventos de teclado ---
 document.addEventListener('keydown', (e) => {
+  if (!nombreUsuario) return
   if (['ArrowUp', 'ArrowLeft', 'ArrowRight', ' ', 'Enter'].includes(e.key))
     e.preventDefault()
   keysPressed[e.key] = true
@@ -336,6 +342,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === ' ') disparar()
 })
 document.addEventListener('keyup', (e) => {
+  if (!nombreUsuario) return
   delete keysPressed[e.key]
   if (e.key === 'ArrowUp') {
     avanzando = false
@@ -349,6 +356,7 @@ document.addEventListener('keyup', (e) => {
 
 // --- Mouse mueve nave (solo si no hay teclas) ---
 document.addEventListener('mousemove', (e) => {
+  if (!nombreUsuario) return
   if (gameOver || pausado) return
   const centroX = innerWidth / 2,
     centroY = innerHeight / 2
@@ -427,7 +435,7 @@ function moverFondo() {
 }
 
 function disparar() {
-  if (gameOver || pausado) return
+  if (!nombreUsuario || gameOver || pausado) return
   for (let i = 0; i < cantidadDisparosPorNivel; i++) {
     setTimeout(() => {
       if (sonidoActivo) {
@@ -490,6 +498,7 @@ function disparar() {
             puntuacion++
             hitsParaVida++
             document.getElementById('puntos').innerText = puntuacion
+            guardarEstadoJuego()
             if (hitsParaVida >= 3 && vidas < 10) {
               vidas++
               hitsParaVida = 0
@@ -571,6 +580,7 @@ function moverAsteroides() {
       vidas--
       if (vidas < 0) vidas = 0
       actualizarBarraVidas()
+      guardarEstadoJuego()
       if (vidas <= 0) {
         finalizarJuego()
         return
@@ -657,6 +667,7 @@ function iniciarNivel(nivel) {
 
 // --- Reinicio de juego robusto ---
 document.addEventListener('click', (e) => {
+  if (!nombreUsuario) return // <-- Agrega esta línea
   if (e.target.id === 'reiniciar') {
     gameOver = false
     pausado = false
@@ -783,10 +794,6 @@ Object.assign(universo.style, {
   top: '-9500px',
   zIndex: '0',
 })
-
-// --- Iniciar juego ---
-iniciarNivel(0)
-moverFondo()
 
 // --- Proyectiles enemigos ---
 let proyectilesEnemigos = []
@@ -962,6 +969,8 @@ function mostrarPopupRegistro() {
     <button id="btnRegistroUsuario" style="font-size:1.1em;padding:10px 30px;border-radius:8px;background:#0f0;color:#222;border:none;font-weight:bold;cursor:pointer;">Comenzar</button>
   `
   document.body.appendChild(popup)
+
+  // Listener para el botón
   document.getElementById('btnRegistroUsuario').onclick = () => {
     const nombre = document.getElementById('inputNombreUsuario').value.trim()
     if (nombre.length < 2) {
@@ -972,7 +981,14 @@ function mostrarPopupRegistro() {
     localStorage.setItem('nombreUsuario', nombreUsuario)
     popup.remove()
     mostrarNombreUsuario()
+    if (!juegoIniciado) {
+      juegoIniciado = true
+      iniciarNivel(nivel)
+      moverFondo()
+    }
   }
+
+  // Listener para Enter en el input
   document
     .getElementById('inputNombreUsuario')
     .addEventListener('keydown', (e) => {
@@ -1031,7 +1047,8 @@ function mostrarNombreUsuario() {
     proyectilesEnemigos = []
     // Borra el nombre de usuario y recarga para volver a mostrar el popup
     localStorage.removeItem('nombreUsuario')
-    setTimeout(() => location.reload(), 1500)
+    localStorage.removeItem('estadoJuego')
+    location.reload()
   }
 }
 
@@ -1064,17 +1081,65 @@ function mensajePersonalizado(texto) {
 }
 
 // Llama a la ventana de registro si no hay nombre guardado
-if (!nombreUsuario) {
-  setTimeout(mostrarPopupRegistro, 300)
-} else {
-  mostrarNombreUsuario()
-  iniciarNivel(nivel)
-  moverFondo()
+window.onload = function () {
+  if (!nombreUsuario) {
+    setTimeout(mostrarPopupRegistro, 300)
+  } else {
+    mostrarNombreUsuario()
+    restaurarEstadoJuego()
+    iniciarNivel(nivel)
+    moverFondo()
+  }
 }
 
-// Ejemplo de uso en avisos emergentes:
-// mensajePersonalizado('¡Felicidades! Nivel superado 🚀')
+// --- Mantenimiento: depurar elementos fuera del universo cada 10s ---
+setInterval(() => {
+  // Depurar asteroides eliminados
+  asteroides = asteroides.filter((a) => {
+    if (!document.body.contains(a)) return false
+    const top = parseFloat(a.style.top) || 0
+    if (top > 22000 || isNaN(top)) {
+      a.remove()
+      return false
+    }
+    return true
+  })
+}, 10000)
 
-// Puedes reemplazar los avisos de nivel y game over así:
-// mensajePersonalizado('¡El juego ha terminado!');
-// mensajePersonalizado('¡Felicidades! Nivel ' + nivel + ' alcanzado 🚀');
+function guardarEstadoJuego() {
+  const estado = {
+    vidas,
+    puntuacion,
+    nivel,
+    ux,
+    uy,
+    ang,
+    cantidadDisparosPorNivel,
+  }
+  localStorage.setItem('estadoJuego', JSON.stringify(estado))
+}
+
+function restaurarEstadoJuego() {
+  const estado = JSON.parse(localStorage.getItem('estadoJuego'))
+  if (estado) {
+    vidas = estado.vidas
+    puntuacion = estado.puntuacion
+    nivel = estado.nivel
+    ux = estado.ux
+    uy = estado.uy
+    ang = estado.ang
+    cantidadDisparosPorNivel = estado.cantidadDisparosPorNivel
+    universo.style.left = `${ux}px`
+    universo.style.top = `${uy}px`
+    document.getElementById('puntos').innerText = puntuacion
+    document.getElementById('nivel').innerText = `Nivel ${nivel}`
+    actualizarBarraVidas()
+    nave.style.transform = `translate(-50%, -50%) rotate(${ang}deg)` // <-- NUEVO
+  }
+}
+
+// --- Evitar cierre accidental del juego ---
+window.addEventListener('beforeunload', function (e) {
+  e.preventDefault()
+  e.returnValue = ''
+})
